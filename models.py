@@ -52,6 +52,17 @@ class Listing(db.Model):
         """Find all current listings"""
         listings = cls.query.all() 
         return listings
+
+
+    # @classmethod
+    # def findListing(cls,id):
+    #     """Find all current listings"""
+    #     listings = cls.query.get
+    #     return listings
+
+    # @classmethod
+    # def createListing(cls,name,image,price,description,location):
+    # """Create a new listing {id,name,image,price,description,location}"""
     
 
     def serialize(self):
