@@ -1,5 +1,5 @@
 from models import db, Listing
-from app import app
+# from app import app
 
 db.drop_all()
 db.create_all()

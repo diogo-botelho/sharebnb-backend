@@ -3,6 +3,9 @@
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
+import boto3
+s3 = boto3.client('s3')
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -63,7 +66,26 @@ class Listing(db.Model):
     # @classmethod
     # def createListing(cls,name,image,price,description,location):
     # """Create a new listing {id,name,image,price,description,location}"""
-    
+    @classmethod
+    def upload_img(cls, file_name):
+        """Upload img to s3 bucket"""
+        result = s3.upload_file(file_name, "sharebnb-dnd")
+
+        if result: 
+            print("success")
+            return "success"
+        else: 
+            print("error")
+
+    @classmethod
+    def generate_url(cls, file_name):
+        """Generate url for image in database"""
+
+        response = s3.create_presigned_url("sharebnb-dnd",file_name, expiration=None)
+
+        print("response from")
+        return response 
+
 
     def serialize(self):
         """Serialize to dictionary."""

@@ -1,6 +1,8 @@
 #Questions to answer:
 # 1) In routes for getting all listings and specific listing, we're returning the id,
 #       together with all the other information. Should we not send the id?
+# import boto3
+
 
 from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
@@ -9,8 +11,13 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, Listing
 
+# from s3 import (
+#     upload_file_obj, create_presigned_url
+# )
 # import dotenv
 # dotenv.load_dotenv()
+
+
 
 app = Flask(__name__)
 
@@ -61,6 +68,8 @@ def create_cupcake():
 
     data = request.json
 
+    
+
     new_listing = Listing(
         name = data['name'],
         image = data['image'],
@@ -69,6 +78,7 @@ def create_cupcake():
         location = data['location']
     )
 
+    
     db.session.add(new_listing)
     db.session.commit()
 
