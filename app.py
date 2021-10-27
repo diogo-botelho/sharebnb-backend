@@ -1,6 +1,8 @@
+#Questions to answer:
+# 1) In routes for getting all listings and specific listing, we're returning the id,
+#       together with all the other information. Should we not send the id?
 
-
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
 # from sqlalchemy.exc import IntegrityError
 # from werkzeug.exceptions import Unauthorized
@@ -38,4 +40,70 @@ def show_listings():
 
     return jsonify(listings=serialized)
 
-    
+@app.get("/listings/<int:listing_id>")
+def get_listing(listing_id):
+    """Get a specific listing
+    Return {id, name, image, price, description, location}
+    """
+
+    listing = Listing.query.get_or_404(listing_id)
+
+    serialized = listing.serialize()
+
+    return jsonify(listing=serialized)
+
+@app.post('/listings')
+def create_cupcake():
+    """
+    Adding a new listing to our database
+    Return {listing: {id, name, image, price, description, location}}
+    """
+
+    data = request.json
+
+    new_listing = Listing(
+        name = data['name'],
+        image = data['image'],
+        price = data['price'],
+        description = data['description'], 
+        location = data['location']
+    )
+
+    db.session.add(new_listing)
+    db.session.commit()
+
+    serialized = new_listing.serialize()
+    # Return w/status code 201 --- return tuple (json, status)
+    return (jsonify(listing=serialized), 201)
+
+@app.patch('/listings/<int:listing_id>')
+def update_listing(listing_id):
+    """
+    Update an existing listing.
+    Return {listing: {id, name, image, price, description, location}}
+    """
+
+    listing = Listing.query.get_or_404(listing_id)
+
+    listing.price = request.json["price"]
+    listing.image = request.json["image"]
+    listing.description = request.json["description"]
+
+    db.session.commit()
+
+    serialized = listing.serialize()
+
+    return jsonify(listing=serialized)
+
+@app.delete('/listings/<int:listing_id>')
+def delete_listing(listing_id):
+    """Delete a listing. Return {deleted: [listing-id]}"""
+
+    listing = Listing.query.get_or_404(listing_id)
+
+    db.session.delete(listing)
+    db.session.commit()
+
+    # serialized = listing.serialize()
+
+    return jsonify(deleted=listing_id)
