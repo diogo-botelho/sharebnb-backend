@@ -4,12 +4,14 @@
 # import boto3
 
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template, redirect
 from flask_debugtoolbar import DebugToolbarExtension
 # from sqlalchemy.exc import IntegrityError
 # from werkzeug.exceptions import Unauthorized
 
 from models import db, connect_db, Listing
+from forms import FileForm
+from s3 import upload_file
 
 # from s3 import (
 #     upload_file_obj, create_presigned_url
@@ -60,15 +62,13 @@ def get_listing(listing_id):
     return jsonify(listing=serialized)
 
 @app.post('/listings')
-def create_cupcake():
+def create_listing():
     """
     Adding a new listing to our database
     Return {listing: {id, name, image, price, description, location}}
     """
 
-    data = request.json
-
-    
+    data = request.json    
 
     new_listing = Listing(
         name = data['name'],
@@ -117,3 +117,23 @@ def delete_listing(listing_id):
     # serialized = listing.serialize()
 
     return jsonify(deleted=listing_id)
+
+@app.route('/listings/add_image', methods=["GET", "POST"])
+def add_image():
+    '''Add an image'''
+
+    form = FileForm()
+
+    if form.validate_on_submit():
+        breakpoint()
+        response = upload_file(form.data["image"], "sharednd")
+        breakpoint()
+        # image_data = form.image.data]
+        # open(os.path.join("/home/diogobotelho/Rithm School/sprints/sharebandb-backend/", form.data["image"]), 'w').write(image_data)
+        breakpoint()
+        print("form",form)
+
+        return redirect("/listings")
+
+    else:
+        return render_template('form.html', form=form)
