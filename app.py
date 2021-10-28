@@ -1,12 +1,13 @@
 import os
 
-from flask import Flask, jsonify, request, render_template, redirect
+from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
 # from sqlalchemy.exc import IntegrityError
 # from werkzeug.exceptions import Unauthorized
 
 from models import db, connect_db, Listing
-from forms import FileForm
+from flask_cors import CORS
+# from forms import FileForm
 from handle_image import create_presigned_url
 
 import boto3
@@ -20,7 +21,7 @@ s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 
 app = Flask(__name__)
-
+CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -42,6 +43,7 @@ db.create_all()
 @app.get("/listings")
 def show_listings():
     """Show all current listings"""
+    print("Listing connection, to the backend")
     listings = Listing.findAll()
     serialized = [listing.serialize() for listing in listings]
 
@@ -68,9 +70,14 @@ def create_listing():
 
     data = request.json    
 
+    file = data['image']
+    s3.upload_fileobj(file, BUCKET, f"{file.filename}", ExtraArgs={"ACL":"public-read"} )
+
+    url_path = create_presigned_url( BUCKET, file.filename,)
+
     new_listing = Listing(
         name = data['name'],
-        image = data['image'],
+        image = url_path,
         price = data['price'],
         description = data['description'], 
         location = data['location']
@@ -116,36 +123,36 @@ def delete_listing(listing_id):
 
     return jsonify(deleted=listing_id)
 
-@app.route('/listings/add_image', methods=["GET", "POST"])
-def add_image():
-    '''Add an image'''
+# @app.route('/listings/add_image', methods=["GET", "POST"])
+# def add_image():
+#     '''Add an image'''
 
-    form = FileForm()
+#     form = FileForm()
 
-    if form.validate_on_submit():
+#     if form.validate_on_submit():
 
-        file = form.data['image']
-        upload_url = s3.upload_fileobj(file, BUCKET, f"{file.filename}", ExtraArgs={"ACL":"public-read"} )
+#         file = form.data['image']
+#         upload_url = s3.upload_fileobj(file, BUCKET, f"{file.filename}", ExtraArgs={"ACL":"public-read"} )
 
-        url_path = create_presigned_url( BUCKET, file.filename,)
-        print(url_path, "path success")
+#         url_path = create_presigned_url( BUCKET, file.filename,)
+#         print(url_path, "path success")
 
-        # :TODO  Add to database
-        #   new_listing = Listing(
-        #       name = data['name'],
-        #       image = url_path,
-        #       price = data['price'],
-        #       description = data['description'], 
-        #       location = data['location']
-        # )
+       
+#         new_listing = Listing(
+#               name = data['name'],
+#               image = url_path,
+#               price = data['price'],
+#               description = data['description'], 
+#               location = data['location']
+#         )
 
-        # db.session.add(new_listing)
-        # db.session.commit()
+#         db.session.add(new_listing)
+#         db.session.commit()
         
             
-        print(upload_url, "result")
+#         print(upload_url, "result")
 
-        return redirect("/listings")
+#         return redirect("/listings")
 
-    else:
-        return render_template('form.html', form=form)
+#     else:
+#         return render_template('form.html', form=form)
