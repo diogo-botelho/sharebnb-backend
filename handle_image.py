@@ -3,9 +3,8 @@ import boto3
 from botocore.exceptions import ClientError
 import os
 
-# import requests    # To install: pip install requests
+s3 = boto3.resource('s3')
 
-# Upload file to S3
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
 
@@ -52,24 +51,3 @@ def create_presigned_url(bucket_name, object_name, expiration=None):
     # The response contains the presigned URL
     return response
 
-
-
-# s3 = boto3.client('s3')
-# response = s3.list_buckets()
-
-# breakpoint()
-# # Output the bucket names
-# print("response", response['Buckets'])
-# print('Existing buckets:')
-# for bucket in response['Buckets']:
-#     print(f'  {bucket["Name"]}')
-
-# # url_response = create_presigned_url("sharebnb-dnd","testFile.jpeg")
-# url_response = create_presigned_url("sharednd","testFile.jpeg")
-
-# print(url_response, "response from create url")
-
-# # if url_response is not None:
-# #     url = requests.get(url_response)
-# #     print(url)
-    

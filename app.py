@@ -1,8 +1,4 @@
-#Questions to answer:
-# 1) In routes for getting all listings and specific listing, we're returning the id,
-#       together with all the other information. Should we not send the id?
-# import boto3
-
+import os
 
 from flask import Flask, jsonify, request, render_template, redirect
 from flask_debugtoolbar import DebugToolbarExtension
@@ -11,15 +7,17 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, Listing
 from forms import FileForm
-from s3 import upload_file
+from handle_image import create_presigned_url
 
-# from s3 import (
-#     upload_file_obj, create_presigned_url
-# )
-# import dotenv
-# dotenv.load_dotenv()
+import boto3
+
+import dotenv
+dotenv.load_dotenv()
+
+s3 = boto3.client('s3')
 
 
+BUCKET = os.environ['BUCKET']
 
 app = Flask(__name__)
 
@@ -125,13 +123,27 @@ def add_image():
     form = FileForm()
 
     if form.validate_on_submit():
-        breakpoint()
-        response = upload_file(form.data["image"], "sharednd")
-        breakpoint()
-        # image_data = form.image.data]
-        # open(os.path.join("/home/diogobotelho/Rithm School/sprints/sharebandb-backend/", form.data["image"]), 'w').write(image_data)
-        breakpoint()
-        print("form",form)
+
+        file = form.data['image']
+        upload_url = s3.upload_fileobj(file, BUCKET, f"{file.filename}", ExtraArgs={"ACL":"public-read"} )
+
+        url_path = create_presigned_url( BUCKET, file.filename,)
+        print(url_path, "path success")
+
+        # :TODO  Add to database
+        #   new_listing = Listing(
+        #       name = data['name'],
+        #       image = url_path,
+        #       price = data['price'],
+        #       description = data['description'], 
+        #       location = data['location']
+        # )
+
+        # db.session.add(new_listing)
+        # db.session.commit()
+        
+            
+        print(upload_url, "result")
 
         return redirect("/listings")
 
