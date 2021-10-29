@@ -1,5 +1,4 @@
 import os
-
 from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
 # from sqlalchemy.exc import IntegrityError
@@ -67,12 +66,10 @@ def create_listing():
     Adding a new listing to our database
     Return {listing: {id, name, image, price, description, location}}
     """
+    data = request.form
+    file = request.files['image']
 
-    data = request.json    
-
-    file = data['image']
-    s3.upload_fileobj(file, BUCKET, f"{file.filename}", ExtraArgs={"ACL":"public-read"} )
-
+    s3.upload_fileobj(file, BUCKET, file.filename, ExtraArgs={"ACL":"public-read"} )
     url_path = create_presigned_url( BUCKET, file.filename,)
 
     new_listing = Listing(
@@ -82,7 +79,6 @@ def create_listing():
         description = data['description'], 
         location = data['location']
     )
-
     
     db.session.add(new_listing)
     db.session.commit()
