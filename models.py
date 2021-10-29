@@ -11,6 +11,92 @@ db = SQLAlchemy()
 
 DEFAULT_IMAGE = "https://st4.depositphotos.com/14953852/24787/v/600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
 
+class Listing(db.Model):
+    """Listing Model"""
+
+    __tablename__ = "listings"
+
+    id = db.Column(
+        db.Integer, 
+        primary_key = True,
+        autoincrement = True
+    )
+
+    name = db.Column(
+        db.Text,
+        nullable = False,
+    )
+
+    image = db.Column(
+        db.Text, 
+        nullable = False,
+        default = DEFAULT_IMAGE
+    )
+
+    price = db.Column(
+        db.Numeric(10, 2),
+        nullable = False, 
+        default = 0
+    )
+
+    description = db.Column(
+        db.Text, 
+        nullable = False,
+        default = ""
+    )
+
+    location = db.Column(
+        db.Text,
+        nullable = False
+    )
+
+    # created = db.Column(
+    #     db.String,
+    #     db.ForeignKey('users.username', ondelete='CASCADE'),
+    #     nullable=False
+    # )
+
+    # rented = db.Column(
+    #     db.String,
+    #     db.ForeignKey('users.username', ondelete='CASCADE'),
+    # )
+
+    @classmethod
+    def findListings(cls,searchTerm=False):
+        """Find all current listings"""
+        
+        # for key in searchTerm:
+            # print("########################",key,searchTerm[key])
+        # console.log("S")
+        if searchTerm:
+            listings = cls.query.filter_by(name=f'{searchTerm["name"]}').all()
+        else:    
+            listings = cls.query.all() 
+        return listings
+
+
+    @classmethod
+    def generate_url(cls, file_name):
+        """Generate url for image in database"""
+
+        response = s3.create_presigned_url("BUCKET",file_name, expiration=None)
+
+        print("response from")
+        return response 
+
+
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return {
+            "id": self.id,
+            "name": self.name,
+            "image": self.image,
+            "price": str(self.price),
+            "description": self.description,
+            "location": self.location
+        }
+
 # class User(db.Model):
 #     """User in the system."""
 
@@ -114,89 +200,6 @@ DEFAULT_IMAGE = "https://st4.depositphotos.com/14953852/24787/v/600/depositphoto
 #                 return user
 
 #         return False
-
-
-
-class Listing(db.Model):
-    """Listing Model"""
-
-    __tablename__ = "listings"
-
-    id = db.Column(
-        db.Integer, 
-        primary_key = True,
-        autoincrement = True
-    )
-
-    name = db.Column(
-        db.Text,
-        nullable = False,
-    )
-
-    image = db.Column(
-        db.Text, 
-        nullable = False,
-        default = DEFAULT_IMAGE
-    )
-
-    price = db.Column(
-        db.Numeric(10, 2),
-        nullable = False, 
-        default = 0
-    )
-
-    description = db.Column(
-        db.Text, 
-        nullable = False,
-        default = ""
-    )
-
-    location = db.Column(
-        db.Text,
-        nullable = False
-    )
-
-    # created = db.Column(
-    #     db.String,
-    #     db.ForeignKey('users.username', ondelete='CASCADE'),
-    #     nullable=False
-    # )
-
-    # rented = db.Column(
-    #     db.String,
-    #     db.ForeignKey('users.username', ondelete='CASCADE'),
-    # )
-
-    @classmethod
-    def findAll(cls):
-        """Find all current listings"""
-        listings = cls.query.all() 
-        return listings
-
-
-    @classmethod
-    def generate_url(cls, file_name):
-        """Generate url for image in database"""
-
-        response = s3.create_presigned_url("BUCKET",file_name, expiration=None)
-
-        print("response from")
-        return response 
-
-
-    def serialize(self):
-        """Serialize to dictionary."""
-
-        return {
-            "id": self.id,
-            "name": self.name,
-            "image": self.image,
-            "price": str(self.price),
-            "description": self.description,
-            "location": self.location
-        }
-
-
 
 def connect_db(app):
     """Connect this database to provided Flask app."""

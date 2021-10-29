@@ -43,7 +43,9 @@ db.create_all()
 def show_listings():
     """Show all current listings"""
     print("Listing connection, to the backend")
-    listings = Listing.findAll()
+    searchTerm = request.args
+    # breakpoint()
+    listings = Listing.findListings(searchTerm)
     serialized = [listing.serialize() for listing in listings]
 
     return jsonify(listings=serialized)
