@@ -62,7 +62,7 @@ class Listing(db.Model):
     # )
 
     @classmethod
-    def findListings(cls,searchTerm=False):
+    def find_listings(cls,searchTerm=False):
         """Find all current listings"""
         
         # for key in searchTerm:

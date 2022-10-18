@@ -1,27 +1,27 @@
 import os
+
 from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_cors import CORS
 # from sqlalchemy.exc import IntegrityError
 # from werkzeug.exceptions import Unauthorized
 
 from models import db, connect_db, Listing
-from flask_cors import CORS
 # from forms import FileForm
 from handle_image import create_presigned_url
 
 import boto3
-
 import dotenv
 dotenv.load_dotenv()
 
 s3 = boto3.client('s3')
-
 
 BUCKET = os.environ['BUCKET']
 
 app = Flask(__name__)
 CORS(app)
 
+app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -41,11 +41,14 @@ db.create_all()
 
 @app.get("/listings")
 def show_listings():
-    """Show all current listings"""
+    """Show all current listings
+       Return { listing, listing, listing }"""
+
     print("Listing connection, to the backend")
+
     searchTerm = request.args
-    # breakpoint()
-    listings = Listing.findListings(searchTerm)
+
+    listings = Listing.find_listings(searchTerm)
     serialized = [listing.serialize() for listing in listings]
 
     return jsonify(listings=serialized)
@@ -71,7 +74,9 @@ def create_listing():
     data = request.form
     file = request.files['image']
 
-    s3.upload_fileobj(file, BUCKET, file.filename, ExtraArgs={"ACL":"public-read"} )
+    breakpoint()
+    s3.upload_fileobj(file, BUCKET, file.filename)
+
     url_path = create_presigned_url( BUCKET, file.filename,)
 
     new_listing = Listing(

@@ -50,4 +50,3 @@ def create_presigned_url(bucket_name, object_name, expiration=None):
 
     # The response contains the presigned URL
     return response
-
