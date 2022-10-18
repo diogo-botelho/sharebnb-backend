@@ -17,6 +17,10 @@ dotenv.load_dotenv()
 s3 = boto3.client('s3')
 
 BUCKET = os.environ['BUCKET']
+database_url = os.environ.get('DATABASE_URL')
+
+# fix incorrect database URIs currently returned by Heroku's pg setup
+database_url = database_url.replace('postgres://', 'postgresql://')
 
 app = Flask(__name__)
 CORS(app)
