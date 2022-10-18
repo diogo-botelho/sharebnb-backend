@@ -26,7 +26,7 @@ app = Flask(__name__)
 CORS(app)
 
 app.debug = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb'
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
