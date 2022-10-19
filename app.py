@@ -81,7 +81,7 @@ def create_listing():
     """
     data = request.form
     file = request.files['image']
-
+    breakpoint()
     s3.upload_fileobj(file, BUCKET, file.filename)
 
     url_path = create_presigned_url( BUCKET, file.filename,)
