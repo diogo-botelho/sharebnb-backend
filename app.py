@@ -21,8 +21,8 @@ database_url = os.environ.get('DATABASE_URL')
 
 # breakpoint()
 # fix incorrect database URIs currently returned by Heroku's pg setup
-if database_url:
-    database_url = database_url.replace('postgres://', 'postgresql://')
+# if database_url:
+#     database_url = database_url.replace('postgres://', 'postgresql://')
 
 app = Flask(__name__)
 CORS(app)
