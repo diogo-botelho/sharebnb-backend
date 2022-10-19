@@ -80,6 +80,7 @@ def create_listing():
     Return {listing: {id, name, image, price, description, location}}
     """
     data = request.form
+    print(data)
     file = request.files['image']
     breakpoint()
     s3.upload_fileobj(file, BUCKET, file.filename)
