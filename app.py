@@ -19,6 +19,7 @@ s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 database_url = os.environ.get('DATABASE_URL')
 
+# breakpoint()
 # fix incorrect database URIs currently returned by Heroku's pg setup
 if database_url:
     database_url = database_url.replace('postgres://', 'postgresql://')
@@ -28,6 +29,7 @@ CORS(app)
 
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb' or database_url
+# breakpoint()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
