@@ -82,7 +82,7 @@ def create_listing():
     data = request.form
     
     file = request.files['image']
-    breakpoint()
+    # breakpoint()
     try:
         s3.upload_fileobj(file, BUCKET, file.filename)
 
