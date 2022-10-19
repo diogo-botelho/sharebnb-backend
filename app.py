@@ -80,27 +80,31 @@ def create_listing():
     Return {listing: {id, name, image, price, description, location}}
     """
     data = request.form
-    print(data)
+    
     file = request.files['image']
     breakpoint()
-    s3.upload_fileobj(file, BUCKET, file.filename)
+    try:
+        s3.upload_fileobj(file, BUCKET, file.filename)
 
-    url_path = create_presigned_url( BUCKET, file.filename,)
+        url_path = create_presigned_url( BUCKET, file.filename,)
 
-    new_listing = Listing(
-        name = data['name'],
-        image = url_path,
-        price = data['price'],
-        description = data['description'], 
-        location = data['location']
-    )
+        new_listing = Listing(
+            name = data['name'],
+            image = url_path,
+            price = data['price'],
+            description = data['description'], 
+            location = data['location']
+        )
+        
+        db.session.add(new_listing)
+        db.session.commit()
+
+        serialized = new_listing.serialize()
+        # Return w/status code 201 --- return tuple (json, status)
+        return (jsonify(listing=serialized), 201)
     
-    db.session.add(new_listing)
-    db.session.commit()
-
-    serialized = new_listing.serialize()
-    # Return w/status code 201 --- return tuple (json, status)
-    return (jsonify(listing=serialized), 201)
+    except:
+        return data
 
 @app.patch('/listings/<int:listing_id>')
 def update_listing(listing_id):
