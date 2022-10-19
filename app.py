@@ -20,7 +20,8 @@ BUCKET = os.environ['BUCKET']
 database_url = os.environ.get('DATABASE_URL')
 
 # fix incorrect database URIs currently returned by Heroku's pg setup
-database_url = database_url.replace('postgres://', 'postgresql://')
+if database_url:
+    database_url = database_url.replace('postgres://', 'postgresql://')
 
 app = Flask(__name__)
 CORS(app)
@@ -78,7 +79,6 @@ def create_listing():
     data = request.form
     file = request.files['image']
 
-    breakpoint()
     s3.upload_fileobj(file, BUCKET, file.filename)
 
     url_path = create_presigned_url( BUCKET, file.filename,)
