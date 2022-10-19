@@ -19,16 +19,17 @@ s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 database_url = os.environ.get('DATABASE_URL')
 
-# breakpoint()
-# fix incorrect database URIs currently returned by Heroku's pg setup
-# if database_url:
-#     database_url = database_url.replace('postgres://', 'postgresql://')
-
 app = Flask(__name__)
 CORS(app)
 
 app.debug = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb' or database_url
+if database_url:
+    # fix incorrect database URIs currently returned by Heroku's pg setup
+    database_url = database_url.replace('postgres://', 'postgresql://')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sharebnb'
+
 # breakpoint()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
