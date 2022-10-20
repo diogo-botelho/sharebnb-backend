@@ -10,6 +10,7 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 DEFAULT_IMAGE = "https://st4.depositphotos.com/14953852/24787/v/600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+IMAGE_URL= "https://sharebnb-diogo-photos.s3.amazonaws.com"
 
 class Listing(db.Model):
     """Listing Model"""
@@ -73,6 +74,25 @@ class Listing(db.Model):
         else:    
             listings = cls.query.all() 
         return listings
+
+    @classmethod
+    def create_listing(cls,data,file,BUCKET):
+        breakpoint()
+        s3.upload_fileobj(file, BUCKET, file.filename)
+        # url_path = create_presigned_url( BUCKET, file.filename,)
+
+        breakpoint()
+        new_listing = Listing(
+            name = data['name'],
+            image = f'{IMAGE_URL}/{file.filename}',
+            price = data['price'],
+            description = data['description'], 
+            location = data['location']
+        )
+        breakpoint()
+        db.session.add(new_listing)
+        
+        return new_listing
 
 
     @classmethod
