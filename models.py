@@ -77,11 +77,10 @@ class Listing(db.Model):
 
     @classmethod
     def create_listing(cls,data,file,BUCKET):
-        breakpoint()
+        
         s3.upload_fileobj(file, BUCKET, file.filename)
         # url_path = create_presigned_url( BUCKET, file.filename,)
 
-        breakpoint()
         new_listing = Listing(
             name = data['name'],
             image = f'{IMAGE_URL}/{file.filename}',
@@ -89,7 +88,6 @@ class Listing(db.Model):
             description = data['description'], 
             location = data['location']
         )
-        breakpoint()
         db.session.add(new_listing)
         
         return new_listing
